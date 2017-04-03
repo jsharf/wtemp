@@ -47,7 +47,7 @@ import math
 # =========
 # This is approximate. Units are W/(mK) (watts/(meters*kelvin)). Data source:
 # https://prezi.com/iwto6j4zvzni/heat-transfer-principles-of-coffee-cups/
-GLASS_THERMAL_COEFFICIENT = 1.0
+GLASS_THERMAL_COEFFICIENT = 0.1034
 CERAMIC_THERMAL_COEFFICIENT = 0.9
 # Units are Joules/(gram * degrees celsius)
 WATER_SPECIFIC_HEAT = 4.186
@@ -69,12 +69,12 @@ MY_MUG_SURFACE_AREA = math.pi * (0.075) * 0.055 + 2 * (math.pi * ((0.075/2) ** 2
 MY_MUG_THICKNESS = 0.002
 # How much water you put in your cup. Units are in grams (for water, this is the
 # same as milliliters).
-MY_MUG_VOLUME = 250
+MY_MUG_MASS = 250
 # Units in celsius. Ambient temperature of the room the cup is in. 
-MY_APARTMENT_AMBIENT_TEMPERATURE = 24.4444
+MY_APARTMENT_AMBIENT_TEMPERATURE = 24
 
 class MugGenerator(object):
-  def __init__(self, surface_area=MY_MUG_SURFACE_AREA, mass=MY_MUG_VOLUME,
+  def __init__(self, surface_area=MY_MUG_SURFACE_AREA, mass=MY_MUG_MASS,
       t_ambient=MY_APARTMENT_AMBIENT_TEMPERATURE, thickness=MY_MUG_THICKNESS,
       specific_heat=WATER_SPECIFIC_HEAT):
     self.surface_area = surface_area
@@ -117,11 +117,12 @@ class Mug(object):
       # const = 100 - a
       # Now we're trying to find the time t1 when T(t1) = target_temp.
       # target_temp = a + (100 - a)*e^(-k*SA*t1/(d*m*s))
-      # ln(target_temp - a) = ln((100 - a)) - k*SA*t1/(d*m*s)
+      # ln((target_temp - a)/(100 - a)) = - k*SA*t1/(d*m*s)
       # - ln((target_temp - a)/(100 - a)) * (d*m*s)/(k*SA) = t1
       # t1 = -(d*m*s)/(k*SA) * ln((target_temp - a)/(100 - a))
-      return -1 * ((self.thickness * self.mass * self.specific_heat) /
-          (self.thermal_coefficient * self.surface_area)) * math.log((target_temp - self.t_ambient)/(100 - self.t_ambient))
+      return -1.0 * ((self.thickness * self.mass * self.specific_heat) /
+          float(self.thermal_coefficient * self.surface_area)) * (
+      math.log(float(target_temp - self.t_ambient)/(100.0 - self.t_ambient)))
 
 if __name__ == "__main__":
   fire.Fire(MugGenerator)
